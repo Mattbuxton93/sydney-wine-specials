@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eastern Suburbs Red Wine Specials — Sydney</title>
+<style>
+  :root {
+    --color-text-primary: #1a1a1a;
+    --color-text-secondary: #666;
+    --color-background-primary: #fff;
+    --color-background-secondary: #f5f5f3;
+    --color-border-tertiary: rgba(0,0,0,0.12);
+    --color-border-secondary: rgba(0,0,0,0.22);
+    --color-border-primary: rgba(0,0,0,0.35);
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-text-primary: #f0ede8;
+      --color-text-secondary: #aaa;
+      --color-background-primary: #1c1c1c;
+      --color-background-secondary: #2a2a2a;
+      --color-border-tertiary: rgba(255,255,255,0.1);
+      --color-border-secondary: rgba(255,255,255,0.18);
+      --color-border-primary: rgba(255,255,255,0.3);
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); background: var(--color-background-secondary); min-height: 100vh; padding: 0 0 3rem; }
+  .page { max-width: 960px; margin: 0 auto; padding: 0 1.25rem; }
+  .header { padding: 1.5rem 0 0.5rem; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .header-left h1 { font-size: 22px; font-weight: 500; color: var(--color-text-primary); }
+  .header-left p { font-size: 13px; color: var(--color-text-secondary); margin-top: 3px; }
+  .share-btn { font-size: 13px; padding: 7px 14px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-secondary); cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .share-btn:hover { border-color: var(--color-border-primary); }
+  .share-icon { width: 14px; height: 14px; flex-shrink: 0; }
+  .top-bar { display: flex; align-items: center; gap: 10px; margin: 0.5rem 0; flex-wrap: wrap; }
+  .refresh-btn { font-size: 13px; padding: 7px 16px; border: 0.5px solid #791F1F; border-radius: var(--border-radius-md); background: #791F1F; color: #FCEBEB; cursor: pointer; font-weight: 500; white-space: nowrap; }
+  .refresh-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .stale-banner { display: none; font-size: 12px; background: #FAEEDA; color: #633806; border: 0.5px solid #EF9F27; border-radius: var(--border-radius-md); padding: 6px 12px; flex: 1; min-width: 160px; }
+  .status-chip { font-size: 12px; color: var(--color-text-secondary); display: flex; align-items: center; gap: 6px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .dot.loading { background: #EF9F27; animation: pulse 1s infinite; }
+  .dot.loaded { background: #639922; }
+  .dot.error { background: #E24B4A; }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+  .tabs { display: flex; border-bottom: 0.5px solid var(--color-border-tertiary); margin: 0.5rem 0 0; }
+  .tab { font-size: 14px; font-weight: 500; padding: 9px 20px; cursor: pointer; color: var(--color-text-secondary); border-bottom: 2px solid transparent; margin-bottom: -0.5px; white-space: nowrap; }
+  .tab.active { color: #791F1F; border-bottom: 2px solid #791F1F; }
+  .tab-panel { display: none; padding-top: 1rem; }
+  .tab-panel.active { display: block; }
+  .suburb-row { display: flex; gap: 7px; flex-wrap: wrap; margin: 0 0 1rem; }
+  .suburb-btn { font-size: 12px; padding: 4px 11px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-secondary); cursor: pointer; }
+  .suburb-btn.active { background: #791F1F; color: #FCEBEB; border-color: #791F1F; }
+  .deals-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 11px; margin-bottom: 2rem; }
+  .deal-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 0.9rem 1.1rem; position: relative; }
+  .deal-card:hover { border-color: var(--color-border-secondary); }
+  .deal-card.top-deal { border: 1.5px solid #791F1F; }
+  .top-ribbon { position: absolute; top: 10px; right: 10px; font-size: 10px; background: #791F1F; color: #FCEBEB; padding: 2px 7px; border-radius: var(--border-radius-md); font-weight: 500; letter-spacing: 0.04em; }
+  .deal-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 3px; padding-right: 70px; }
+  .deal-shop { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 7px; }
+  .suburb-tag { font-size: 11px; background: var(--color-background-secondary); padding: 1px 6px; border-radius: var(--border-radius-md); margin-left: 5px; }
+  .price-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 5px; flex-wrap: wrap; }
+  .price-now { font-size: 19px; font-weight: 500; color: #791F1F; }
+  .price-was { font-size: 13px; color: var(--color-text-secondary); text-decoration: line-through; }
+  .price-was.estimated { font-style: italic; }
+  .save-badge { font-size: 11px; background: #FCEBEB; color: #791F1F; padding: 2px 7px; border-radius: var(--border-radius-md); font-weight: 500; }
+  .save-amt { font-size: 12px; color: var(--color-text-secondary); }
+  .est-note { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; font-style: italic; }
+  .deal-note { font-size: 12px; color: var(--color-text-secondary); margin-top: 5px; line-height: 1.5; }
+  .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+  .variety-pill { font-size: 11px; padding: 2px 7px; border-radius: var(--border-radius-md); font-weight: 500; }
+  .card-share-btn { font-size: 11px; padding: 3px 8px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: transparent; color: var(--color-text-secondary); cursor: pointer; display: flex; align-items: center; gap: 4px; }
+  .card-share-btn:hover { background: var(--color-background-secondary); }
+  .card-share-btn.copied { color: #0F6E56; border-color: #0F6E56; }
+  .range-controls { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; border: 0.5px solid var(--color-border-tertiary); }
+  .range-row { display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; }
+  .range-row:last-child { margin-bottom: 0; }
+  .range-label { font-size: 13px; color: var(--color-text-secondary); min-width: 90px; }
+  .range-val { font-size: 14px; font-weight: 500; color: var(--color-text-primary); min-width: 52px; text-align: right; }
+  input[type=range] { flex: 1; accent-color: #791F1F; }
+  .range-summary { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 1rem; }
+  .range-summary strong { color: var(--color-text-primary); font-weight: 500; }
+  .variety-section { margin-bottom: 2rem; }
+  .variety-header { display: flex; align-items: center; gap: 9px; margin-bottom: 11px; padding-bottom: 8px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .variety-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .variety-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+  .variety-count { font-size: 12px; color: var(--color-text-secondary); background: var(--color-background-secondary); padding: 2px 8px; border-radius: var(--border-radius-md); }
+  .empty { text-align: center; padding: 3rem 0; color: var(--color-text-secondary); font-size: 14px; }
+  .loading-skeleton { display: none; }
+  .loading-skeleton.show { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 11px; margin-bottom: 2rem; }
+  .skel-card { height: 120px; background: var(--color-background-secondary); border-radius: var(--border-radius-lg); animation: shimmer 1.5s infinite; border: 0.5px solid var(--color-border-tertiary); }
+  @keyframes shimmer { 0%,100%{opacity:0.6;} 50%{opacity:1;} }
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--color-background-primary); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 8px 18px; font-size: 13px; color: var(--color-text-primary); opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 999; white-space: nowrap; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="header-left">
+      <h1>Eastern suburbs red wine specials</h1>
+      <p>Daily AI-searched deals — Bondi, Paddington, Surry Hills, Woollahra &amp; more</p>
+    </div>
+    <button class="share-btn" onclick="shareAll()">
+      <svg class="share-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="3" r="1.5" stroke="currentColor" stroke-width="1.2"/>
+        <circle cx="12" cy="13" r="1.5" stroke="currentColor" stroke-width="1.2"/>
+        <circle cx="3" cy="8" r="1.5" stroke="currentColor" stroke-width="1.2"/>
+        <line x1="10.6" y1="3.7" x2="4.4" y2="7.3" stroke="currentColor" stroke-width="1.2"/>
+        <line x1="4.4" y1="8.7" x2="10.6" y2="12.3" stroke="currentColor" stroke-width="1.2"/>
+      </svg>
+      Share all deals
+    </button>
+  </div>
+
+  <div class="top-bar">
+    <button class="refresh-btn" id="refreshBtn" onclick="doFetch(true)">Refresh today's deals ↗</button>
+    <div class="stale-banner" id="staleBanner">These deals are from yesterday — tap refresh for today's specials.</div>
+    <div class="status-chip" id="statusChip" style="display:none;">
+      <span class="dot loading" id="statusDot"></span>
+      <span id="statusText">Searching...</span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('best')" id="tab-best">Best savings</div>
+    <div class="tab" onclick="switchTab('range')" id="tab-range">Price range</div>
+  </div>
+
+  <div class="tab-panel active" id="panel-best">
+    <div class="suburb-row" id="suburbRowBest" style="display:none;"></div>
+    <div class="loading-skeleton" id="skeleton">
+      <div class="skel-card"></div><div class="skel-card"></div><div class="skel-card"></div>
+      <div class="skel-card"></div><div class="skel-card"></div><div class="skel-card"></div>
+    </div>
+    <div id="bestContainer"></div>
+  </div>
+
+  <div class="tab-panel" id="panel-range">
+    <div class="range-controls" id="rangeControls" style="display:none;">
+      <div class="range-row">
+        <span class="range-label">Min price</span>
+        <input type="range" id="minSlider" min="0" max="200" value="0" step="5" oninput="onSlider()">
+        <span class="range-val" id="minVal">$0</span>
+      </div>
+      <div class="range-row">
+        <span class="range-label">Max price</span>
+        <input type="range" id="maxSlider" min="0" max="200" value="200" step="5" oninput="onSlider()">
+        <span class="range-val" id="maxVal">$200</span>
+      </div>
+    </div>
+    <div class="range-summary" id="rangeSummary" style="display:none;"></div>
+    <div class="suburb-row" id="suburbRowRange" style="display:none;"></div>
+    <div id="rangeContainer"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'syd_redwine_v3';
+const TWENTY_FOUR_H = 24 * 60 * 60 * 1000;
+const VARIETY_COLORS = {"Shiraz":"#A32D2D","Cabernet Sauvignon":"#3C3489","Pinot Noir":"#993556","Grenache":"#993C1D","Merlot":"#0F6E56","Tempranillo":"#854F0B","Malbec":"#185FA5","Blend":"#5F5E5A","Other":"#888780"};
+const VARIETY_BG = {"Shiraz":"#FCEBEB","Cabernet Sauvignon":"#EEEDFE","Pinot Noir":"#FBEAF0","Grenache":"#FAECE7","Merlot":"#E1F5EE","Tempranillo":"#FAEEDA","Malbec":"#E6F1FB","Blend":"#F1EFE8","Other":"#F1EFE8"};
+const VARIETY_ORDER = ["Shiraz","Pinot Noir","Cabernet Sauvignon","Merlot","Grenache","Tempranillo","Malbec","Blend","Other"];
+let allDeals = [];
+let activeSuburbBest = "All";
+let activeSuburbRange = "All";
+
+function saveToStorage(d) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ts: Date.now(), deals: d})); } catch(e) {} }
+function loadFromStorage() { try { const r = localStorage.getItem(STORAGE_KEY); return r ? JSON.parse(r) : null; } catch(e) { return null; } }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function setStatus(msg, state) {
+  const chip = document.getElementById('statusChip');
+  if (!msg) { chip.style.display = 'none'; return; }
+  chip.style.display = 'flex';
+  document.getElementById('statusDot').className = 'dot ' + (state || 'loading');
+  document.getElementById('statusText').textContent = msg;
+}
+function showStaleBanner(v) { document.getElementById('staleBanner').style.display = v ? 'block' : 'none'; }
+function showSkeleton(v) { document.getElementById('skeleton').className = 'loading-skeleton' + (v ? ' show' : ''); }
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+
+function estimateOriginal(price) {
+  const bumps = [9.99,12.99,14.99,17.99,19.99,22.99,24.99,29.99,34.99,39.99,44.99,49.99,59.99,69.99,79.99,99.99,119.99,149.99];
+  for (const b of bumps) { if (price <= b * 0.85) return b; }
+  return Math.round(price * 1.25 * 2) / 2;
+}
+
+function formatOriginal(d) {
+  if (d.price_was) return {val: d.price_was, estimated: false};
+  return {val: estimateOriginal(d.price_now), estimated: true};
+}
+
+function shareDeal(d) {
+  const orig = formatOriginal(d);
+  const pct = Math.round(((orig.val - d.price_now) / orig.val) * 100);
+  const text = `🍷 ${d.name} — $${Number(d.price_now).toFixed(2)} (was ${orig.estimated ? '~' : ''}$${Number(orig.val).toFixed(2)}, save ${pct}%) at ${d.shop}, ${d.suburb}. Via Sydney Eastern Suburbs Red Wine Specials.`;
+  if (navigator.share) { navigator.share({title: 'Red wine special', text}).catch(() => {}); }
+  else { navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard')).catch(() => showToast('Copy failed')); }
+}
+
+function shareAll() {
+  const today = new Date().toLocaleDateString('en-AU', {day:'numeric', month:'long', year:'numeric'});
+  const sorted = [...allDeals].sort((a, b) => {
+    const oa = formatOriginal(a), ob = formatOriginal(b);
+    return ((ob.val - b.price_now) / ob.val) - ((oa.val - a.price_now) / oa.val);
+  }).slice(0, 10);
+  const lines = sorted.map(d => {
+    const orig = formatOriginal(d);
+    const pct = Math.round(((orig.val - d.price_now) / orig.val) * 100);
+    return `• ${d.name} — $${Number(d.price_now).toFixed(2)} (${orig.estimated ? 'est. ' : ''}was $${Number(orig.val).toFixed(2)}, -${pct}%) @ ${d.shop}, ${d.suburb}`;
+  });
+  const text = `🍷 Sydney Eastern Suburbs Red Wine Specials — ${today}\n\nTop deals:\n${lines.join('\n')}\n\nUpdated daily.`;
+  if (navigator.share) { navigator.share({title: 'Sydney Red Wine Specials', text}).catch(() => {}); }
+  else { navigator.clipboard.writeText(text).then(() => showToast('All deals copied to clipboard')).catch(() => showToast('Copy failed')); }
+}
+
+function buildCard(d, rank) {
+  const orig = formatOriginal(d);
+  const pct = Math.round(((orig.val - d.price_now) / orig.val) * 100);
+  const saving = (orig.val - d.price_now).toFixed(2);
+  const color = VARIETY_COLORS[d.variety || 'Other'] || '#888780';
+  const bg = VARIETY_BG[d.variety || 'Other'] || '#F1EFE8';
+  const card = document.createElement('div');
+  card.className = 'deal-card' + (rank === 1 ? ' top-deal' : '');
+  const dealData = JSON.stringify(d).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+  card.innerHTML = `
+    ${rank === 1 ? '<div class="top-ribbon">BEST DEAL</div>' : ''}
+    <div class="deal-name">${d.name || 'Unknown wine'}</div>
+    <div class="deal-shop">${d.shop || ''}${d.suburb ? `<span class="suburb-tag">${d.suburb}</span>` : ''}</div>
+    <div class="price-row">
+      <span class="price-now">$${Number(d.price_now).toFixed(2)}</span>
+      <span class="price-was${orig.estimated ? ' estimated' : ''}">$${Number(orig.val).toFixed(2)}</span>
+      <span class="save-badge">Save ${pct}%</span>
+      <span class="save-amt">($${saving} off)</span>
+    </div>
+    ${orig.estimated ? '<div class="est-note">Original price estimated</div>' : ''}
+    ${d.note ? `<div class="deal-note">${d.note}</div>` : ''}
+    <div class="card-footer">
+      <span class="variety-pill" style="background:${bg};color:${color};">${d.variety || 'Other'}</span>
+      <button class="card-share-btn" onclick="handleCardShare(this, ${dealData})">
+        <svg width="11" height="11" viewBox="0 0 16 16" fill="none">
+          <circle cx="12" cy="3" r="1.5" stroke="currentColor" stroke-width="1.3"/>
+          <circle cx="12" cy="13" r="1.5" stroke="currentColor" stroke-width="1.3"/>
+          <circle cx="3" cy="8" r="1.5" stroke="currentColor" stroke-width="1.3"/>
+          <line x1="10.6" y1="3.7" x2="4.4" y2="7.3" stroke="currentColor" stroke-width="1.3"/>
+          <line x1="4.4" y1="8.7" x2="10.6" y2="12.3" stroke="currentColor" stroke-width="1.3"/>
+        </svg>
+        Share
+      </button>
+    </div>`;
+  return card;
+}
+
+function handleCardShare(btn, d) {
+  shareDeal(d);
+  btn.textContent = 'Copied';
+  btn.classList.add('copied');
+  setTimeout(() => {
+    btn.innerHTML = '<svg width="11" height="11" viewBox="0 0 16 16" fill="none"><circle cx="12" cy="3" r="1.5" stroke="currentColor" stroke-width="1.3"/><circle cx="12" cy="13" r="1.5" stroke="currentColor" stroke-width="1.3"/><circle cx="3" cy="8" r="1.5" stroke="currentColor" stroke-width="1.3"/><line x1="10.6" y1="3.7" x2="4.4" y2="7.3" stroke="currentColor" stroke-width="1.3"/><line x1="4.4" y1="8.7" x2="10.6" y2="12.3" stroke="currentColor" stroke-width="1.3"/></svg> Share';
+    btn.classList.remove('copied');
+  }, 2000);
+}
+
+function buildSuburbFilter(id, active, onSelect) {
+  const suburbs = ["All", ...new Set(allDeals.map(d => d.suburb).filter(Boolean).sort())];
+  const row = document.getElementById(id);
+  row.innerHTML = '';
+  suburbs.forEach(s => {
+    const b = document.createElement('button');
+    b.className = 'suburb-btn' + (s === active ? ' active' : '');
+    b.textContent = s;
+    b.onclick = () => onSelect(s);
+    row.appendChild(b);
+  });
+  row.style.display = 'flex';
+}
+
+function renderBest() {
+  const filtered = activeSuburbBest === "All" ? allDeals : allDeals.filter(d => d.suburb === activeSuburbBest);
+  const sorted = [...filtered].sort((a, b) => {
+    const oa = formatOriginal(a), ob = formatOriginal(b);
+    return ((ob.val - b.price_now) / ob.val) - ((oa.val - a.price_now) / oa.val);
+  });
+  const container = document.getElementById('bestContainer');
+  container.innerHTML = '';
+  if (!sorted.length) { container.innerHTML = '<div class="empty">No deals found.</div>'; return; }
+  const grid = document.createElement('div');
+  grid.className = 'deals-grid';
+  sorted.forEach((d, i) => grid.appendChild(buildCard(d, i === 0 ? 1 : null)));
+  container.appendChild(grid);
+  buildSuburbFilter('suburbRowBest', activeSuburbBest, (s) => { activeSuburbBest = s; renderBest(); });
+}
+
+function onSlider() {
+  let mn = parseInt(document.getElementById('minSlider').value);
+  let mx = parseInt(document.getElementById('maxSlider').value);
+  if (mn > mx) { document.getElementById('minSlider').value = mx; mn = mx; }
+  document.getElementById('minVal').textContent = '$' + mn;
+  document.getElementById('maxVal').textContent = mx >= 200 ? '$200+' : '$' + mx;
+  renderRange();
+}
+
+function renderRange() {
+  const mn = parseInt(document.getElementById('minSlider').value);
+  const mx = parseInt(document.getElementById('maxSlider').value);
+  const filtered = (activeSuburbRange === "All" ? allDeals : allDeals.filter(d => d.suburb === activeSuburbRange))
+    .filter(d => d.price_now >= mn && (mx >= 200 || d.price_now <= mx));
+  const summary = document.getElementById('rangeSummary');
+  summary.innerHTML = `Showing <strong>${filtered.length} deal${filtered.length !== 1 ? 's' : ''}</strong> priced between <strong>$${mn}</strong> and <strong>${mx >= 200 ? '$200+' : '$' + mx}</strong>`;
+  summary.style.display = 'block';
+  const byVariety = {};
+  filtered.forEach(d => { const v = d.variety || 'Other'; if (!byVariety[v]) byVariety[v] = []; byVariety[v].push(d); });
+  const sortedV = Object.keys(byVariety).sort((a, b) => {
+    const ia = VARIETY_ORDER.indexOf(a), ib = VARIETY_ORDER.indexOf(b);
+    return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+  });
+  const container = document.getElementById('rangeContainer');
+  container.innerHTML = '';
+  if (!filtered.length) { container.innerHTML = '<div class="empty">No deals in this range. Try adjusting the sliders.</div>'; return; }
+  sortedV.forEach(variety => {
+    const deals = byVariety[variety];
+    const color = VARIETY_COLORS[variety] || '#888780';
+    const sec = document.createElement('div');
+    sec.className = 'variety-section';
+    sec.innerHTML = `<div class="variety-header"><div class="variety-dot" style="background:${color};"></div><span class="variety-title">${variety}</span><span class="variety-count">${deals.length} deal${deals.length !== 1 ? 's' : ''}</span></div>`;
+    const grid = document.createElement('div');
+    grid.className = 'deals-grid';
+    deals.sort((a, b) => a.price_now - b.price_now).forEach(d => grid.appendChild(buildCard(d, null)));
+    sec.appendChild(grid);
+    container.appendChild(sec);
+  });
+  buildSuburbFilter('suburbRowRange', activeSuburbRange, (s) => { activeSuburbRange = s; renderRange(); });
+}
+
+function initSliders() {
+  const prices = allDeals.map(d => d.price_now).filter(Boolean);
+  if (!prices.length) return;
+  const mn = Math.floor(Math.min(...prices) / 5) * 5;
+  document.getElementById('minSlider').min = mn;
+  document.getElementById('minSlider').value = mn;
+  document.getElementById('maxSlider').min = mn;
+  document.getElementById('maxSlider').value = 200;
+  document.getElementById('minVal').textContent = '$' + mn;
+  document.getElementById('maxVal').textContent = '$200+';
+  document.getElementById('rangeControls').style.display = 'block';
+}
+
+async function doFetch(force) {
+  const cached = loadFromStorage();
+  const today = new Date().toDateString();
+  if (!force && cached && new Date(cached.ts).toDateString() === today) {
+    allDeals = cached.deals; showStaleBanner(false); initSliders(); renderBest(); renderRange();
+    setStatus('Up to date today', 'loaded'); setTimeout(() => setStatus(''), 3000); return;
+  }
+  if (cached && (Date.now() - cached.ts) > TWENTY_FOUR_H) showStaleBanner(true);
+  const btn = document.getElementById('refreshBtn');
+  btn.disabled = true; showSkeleton(true);
+  document.getElementById('bestContainer').innerHTML = '';
+  document.getElementById('rangeContainer').innerHTML = '';
+  document.getElementById('suburbRowBest').style.display = 'none';
+  document.getElementById('suburbRowRange').style.display = 'none';
+  document.getElementById('rangeControls').style.display = 'none';
+  document.getElementById('rangeSummary').style.display = 'none';
+  showStaleBanner(false); setStatus('Searching bottle shops...', 'loading');
+  const todayStr = new Date().toLocaleDateString('en-AU', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+  const prompt = `You are a Sydney bottle shop deals researcher. Today is ${todayStr}.
+
+Use web search to find current red wine specials and deals at bottle shops, wine stores, and liquor retailers in Sydney's eastern suburbs: Bondi, Paddington, Surry Hills, Woollahra, Double Bay, Randwick, Coogee, Newtown. Check Dan Murphy's, BWS, Vintage Cellars, First Choice Liquor, and any independent bottle shops.
+
+IMPORTANT: For every single deal, you MUST provide the original price (price_was). Search the retailer's website or wine databases to find the regular RRP or original price. Do not leave price_was as null.
+
+Return a JSON array of deals. Each object must have:
+- name: wine name (string)
+- variety: one of "Shiraz","Cabernet Sauvignon","Pinot Noir","Grenache","Merlot","Tempranillo","Malbec","Blend","Other"
+- shop: retailer name (string)
+- suburb: suburb (string)
+- price_now: current sale price AUD (number)
+- price_was: original/RRP price AUD (number)
+- note: brief tasting or deal note max 20 words (string) or null
+
+Aim for 16-24 deals. Return ONLY valid JSON array, no markdown fences, no explanation.`;
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        tools: [{type: "web_search_20250305", name: "web_search"}],
+        messages: [{role: "user", content: prompt}]
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || 'API error');
+    const fullText = data.content.map(i => i.type === "text" ? i.text : "").filter(Boolean).join("\n");
+    let json = fullText.replace(/```json|```/g, "").trim();
+    const a = json.indexOf('['), b = json.lastIndexOf(']');
+    if (a < 0 || b < 0) throw new Error("No deals found.");
+    allDeals = JSON.parse(json.slice(a, b + 1));
+    if (!Array.isArray(allDeals) || !allDeals.length) throw new Error("Empty deals list.");
+    saveToStorage(allDeals); showSkeleton(false); btn.disabled = false;
+    initSliders(); renderBest(); renderRange();
+    setStatus(allDeals.length + ' deals found today', 'loaded');
+    setTimeout(() => setStatus(''), 4000);
+  } catch(err) {
+    showSkeleton(false); btn.disabled = false;
+    setStatus('Search failed — try again', 'error');
+    if (cached && cached.deals.length) {
+      allDeals = cached.deals; showStaleBanner(true); initSliders(); renderBest(); renderRange();
+    } else {
+      document.getElementById('bestContainer').innerHTML = '<div class="empty">Couldn\'t load deals. Try refreshing.</div>';
+    }
+  }
+}
+
+doFetch(false);
+</script>
+</body>
+</html>
